@@ -39,6 +39,11 @@ Ref: #<taskid>
    EOF
    )"
    ```
+9. Push the branch and open a PR:
+   ```bash
+   git push -u origin <branch>
+   gh pr create --title "<subject>" --body "Ref: #<taskid>"
+   ```
 
 ## Examples
 
