@@ -22,12 +22,13 @@ Ref: #<taskid>
 ## Workflow
 
 1. Run `git branch --show-current` to get the current branch name
-2. Extract the task ID — branch names follow `<type>/<taskid>-<description>` (e.g. `feature/1283-add-oauth` → `1283`)
-3. Run `git diff --staged` (or `git diff HEAD` if nothing staged) to understand the change
-4. Draft the subject: one imperative sentence summarising *what* changed
-5. Add a body paragraph if the motivation or constraints aren't obvious from the subject
-6. Append the footer: blank line + `Ref: #<taskid>`
-7. Commit using a heredoc to preserve formatting:
+2. **If the branch is `main` or `master`, stop immediately** — warn the user that direct commits to main are not allowed and ask them to create a feature branch first (e.g. `git checkout -b feature/<taskid>-<description>`). Do not proceed with the commit.
+3. Extract the task ID — branch names follow `<type>/<taskid>-<description>` (e.g. `feature/1283-add-oauth` → `1283`)
+4. Run `git diff --staged` (or `git diff HEAD` if nothing staged) to understand the change
+5. Draft the subject: one imperative sentence summarising *what* changed
+6. Add a body paragraph if the motivation or constraints aren't obvious from the subject
+7. Append the footer: blank line + `Ref: #<taskid>`
+8. Commit using a heredoc to preserve formatting:
    ```bash
    git commit -m "$(cat <<'EOF'
    <subject>
@@ -37,6 +38,11 @@ Ref: #<taskid>
    Ref: #<taskid>
    EOF
    )"
+   ```
+9. Push the branch and open a PR:
+   ```bash
+   git push -u origin <branch>
+   gh pr create --title "<subject>" --body "Ref: #<taskid>"
    ```
 
 ## Examples
