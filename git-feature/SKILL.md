@@ -1,75 +1,26 @@
 ---
 name: git-feature
-description: Manage the full lifecycle of a feature branch — create branch, commit, push, and open a PR. Does NOT merge to main; PRs handle that. Use when the user asks to start a feature, work on a feature branch, make a commit on a feature, wrap up a feature, or create a feature PR.
+description: Push the current feature branch to origin and open a GitHub PR with a title and task reference. Use when the user wants to push a branch and create a PR.
 ---
 
 # Git Feature
 
-## Branch naming
+Push the current branch and open a pull request.
 
-```
-feature/<taskid>-<short-description>
-```
+## Workflow
 
-Extract `<taskid>` from the task/ticket reference (e.g. `feature/42-add-oauth`).
-
-## Workflows
-
-### Start a feature
-
-1. Confirm you're on `main` and it's up to date: `git checkout main && git pull`
-2. Create and switch to the feature branch:
+1. Run `git branch --show-current` to get the current branch name
+2. **If the branch is `main` or `master`, stop immediately** — do not push or open a PR from main.
+3. Extract the task ID from the branch name — branches follow `<type>/<taskid>-<description>` (e.g. `feature/42-add-oauth` → `42`)
+4. Determine the PR subject from the most recent commit subject (`git log -1 --format=%s`)
+5. Push the branch and open a PR:
    ```bash
-   git checkout -b feature/<taskid>-<description>
+   git push -u origin <branch>
+   gh pr create --title "<subject>" --body "Ref: #<taskid>"
    ```
+6. Return the PR URL to the user
 
-### Commit on a feature branch
+## Notes
 
-1. Run `git branch --show-current` — extract `<taskid>` from `feature/<taskid>-<description>`
-2. Run `git diff --staged` (or `git diff HEAD` if nothing staged)
-3. Draft the commit message:
-   - **Subject**: imperative mood, ≤72 chars, no period
-   - **Body**: only if the *why* is non-obvious; wrap at 72 chars
-   - **Footer**: always `Ref: #<taskid>`
-4. Commit:
-   ```bash
-   git commit -m "$(cat <<'EOF'
-   <subject>
-
-   [body]
-
-   Ref: #<taskid>
-   EOF
-   )"
-   ```
-
-### Wrap up — push and open PR
-
-1. Push the branch: `git push -u origin HEAD`
-2. Create a PR:
-   ```bash
-   gh pr create --title "<subject>" --body "$(cat <<'EOF'
-   ## Summary
-   - <bullet points>
-
-   ## Test plan
-   - [ ] <steps>
-
-   Ref: #<taskid>
-   EOF
-   )"
-   ```
-3. Return the PR URL to the user.
-
-> Merging to main is out of scope — that happens via the PR.
-
-## Example commit
-
-```
-Add OAuth2 login via Google and GitHub
-
-Required by the enterprise SSO rollout; password-only auth is being
-deprecated for business accounts.
-
-Ref: #42
-```
+- Run `/git-commit` first if there are uncommitted changes
+- The PR body uses the same `Ref: #<taskid>` footer convention as commits
